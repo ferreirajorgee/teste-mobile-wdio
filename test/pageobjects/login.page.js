@@ -21,6 +21,10 @@ class LoginPage {
         return $('id=android:id/message');
     }
 
+    mensagemErro(texto) {
+        return $(`android=new UiSelector().text("${texto}")`);
+    }
+
     //Métodos // Ações
 
     async abrirMenuLogin() {
@@ -33,15 +37,6 @@ class LoginPage {
         await this.campoSenha.clearValue();
         await this.campoSenha.setValue(senha);
         await this.botaoLogin.click();
-    }
-
-    async alertaSucesso() {
-        return await this.mensagem.getText();
-    }
-
-    async alertaErro(texto) {
-        const elemento = $(`//android.widget.TextView[@text="${texto}"]`);
-        await expect(elemento).toHaveText(texto)
     }
 }
 

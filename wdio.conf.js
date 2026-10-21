@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import path from 'node:path'
 
 export const config = {
@@ -46,7 +47,7 @@ export const config = {
     // and 30 processes will get spawned. The property handles how many capabilities
     // from the same test should run tests.
     //
-    maxInstances: 10,
+    maxInstances: 1,
     //
     // If you have trouble getting all important capabilities together, check out the
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
@@ -69,9 +70,9 @@ export const config = {
     {
         "platformName": "Android",
         "appium:automationName": "UiAutomator2",
-        "appium:deviceName": "Medium Phone",
-        "appium:platformVersion": "17.0",
-        "appium:app": "app/app-wdio.apk"
+        "appium:deviceName": process.env.ANDROID_DEVICE_NAME || "Medium Phone",
+        "appium:platformVersion": process.env.ANDROID_PLATFORM_VERSION || "17.0",
+        "appium:app": process.env.ANDROID_APP_PATH || "app/app-wdio.apk"
     }
     ],
 
@@ -252,8 +253,14 @@ export const config = {
      * @param {boolean} result.passed    true if test has passed, otherwise false
      * @param {object}  result.retries   information about spec related retries, e.g. `{ attempts: 0, limit: 0 }`
      */
-    // afterTest: function(test, context, { error, result, duration, passed, retries }) {
-    // },
+    afterTest: async function (test, context, { passed }) {
+        if (!passed) {
+            const nome = test.title.replace(/[^a-z0-9]+/gi, '_')
+            fs.mkdirSync('screenshots', { recursive: true })
+            await browser.saveScreenshot(path.join('screenshots', `${nome}.png`))
+        }
+        await browser.relaunchActiveApp()
+    },
 
 
     /**
